@@ -1,6 +1,8 @@
 module Mongoid
   module Scroll
     class BaseCursor
+      MONGO_TIME_PRECISION = 3
+
       attr_accessor :value, :tiebreak_id, :field_type, :field_name, :direction, :include_current
 
       def initialize(value, options = {})
@@ -55,8 +57,8 @@ module Mongoid
         case field_type.to_s
         when 'BSON::ObjectId' then BSON::ObjectId.from_string(value)
         when 'String' then value.to_s == '' ? nil : value.to_s
-        when 'DateTime' then value.is_a?(DateTime) ? value : Time.at(value.to_f).to_datetime
-        when 'Time' then value.is_a?(Time) ? value : Time.at(value.to_f)
+        when 'DateTime' then value.is_a?(DateTime) ? value : ms_time_from_float(value.to_f).to_datetime
+        when 'Time' then value.is_a?(Time) ? value : ms_time_from_float(value.to_f)
         when 'Date' then value.is_a?(Date) ? value : Time.at(value.to_i).utc.to_date
         when 'Float' then value.to_f
         when 'Integer' then value.to_i
@@ -72,7 +74,7 @@ module Mongoid
         when 'BSON::ObjectId' then value.to_s
         when 'String' then value.to_s
         when 'Date' then Time.utc(value.year, value.month, value.day).to_i
-        when 'DateTime', 'Time' then value.utc.to_f.round(3)
+        when 'DateTime', 'Time' then value.utc.to_f.round(MONGO_TIME_PRECISION)
         when 'Float' then value.to_f
         when 'Integer' then value.to_i
         else
@@ -117,6 +119,12 @@ module Mongoid
 
       def parse(_value)
         raise NotImplementedError.new(:parse)
+      end
+
+      def ms_time_from_float(float)
+        seconds = float.to_i
+        milliseconds = ((float - seconds).round(MONGO_TIME_PRECISION) * 10**MONGO_TIME_PRECISION).to_i
+        Time.at(seconds, milliseconds, :millisecond)
       end
     end
   end
