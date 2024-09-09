@@ -332,9 +332,9 @@ describe Mongoid::Criteria do
       end
 
       context 'with DateTime with a milisecond precision' do
-        let!(:item_1) { Feed::Item.create!(a_datetime: DateTime.new(2013, 1, 21, 1, 42, 3.1, 'UTC')) }
-        let!(:item_2) { Feed::Item.create!(a_datetime: DateTime.new(2013, 1, 21, 1, 42, 3.2, 'UTC')) }
-        let!(:item_3) { Feed::Item.create!(a_datetime: DateTime.new(2013, 1, 21, 1, 42, 3.3, 'UTC')) }
+        let!(:item_1) { Feed::Item.create!(a_datetime: DateTime.new(2013, 1, 21, 1, 42, 3.233, 'UTC')) }
+        let!(:item_2) { Feed::Item.create!(a_datetime: DateTime.new(2013, 1, 21, 1, 42, 3.234, 'UTC')) }
+        let!(:item_3) { Feed::Item.create!(a_datetime: DateTime.new(2013, 1, 21, 1, 42, 3.235, 'UTC')) }
 
         it 'doesn\'t lose the precision when rebuilding the cursor' do
           records = []
